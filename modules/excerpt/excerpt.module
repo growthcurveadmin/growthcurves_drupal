@@ -1,0 +1,35 @@
+<?php
+// $Id: excerpt.module,v 1.5.2.1 2005/04/23 03:37:45 unconed Exp $
+
+function excerpt_help($section) {
+  switch ($section) {
+    case 'admin/modules#description':
+      return t('Allows users to enter a separate excerpt for nodes.');
+    case 'admin/node/configure/defaults':
+      return t('<p>If you want users to be able to enter separate excerpts for nodes, check the <em>excerpt</em> box in the appropriate column.</p>');
+  }
+}
+
+function excerpt_nodeapi(&$node, $op, $arg) {
+  switch ($op) {
+    case 'settings':
+      return form_radios(t('Teasers'), "excerpt_$node->type", variable_get("excerpt_$node->type", 1), array(t('Auto-generated'), t('Manual excerpt')), t('Choose whether teasers are generated automatically or can be entered manually by the author.'));
+    case 'form post':
+      if (variable_get("excerpt_$node->type", 1)) {
+        $output = form_textarea(t('Excerpt'), 'teaser', $node->teaser, 60, 10, t('Enter an excerpt for this item. It will be shown on listing pages along with a <em>read more</em> link which leads to the full view. Leave empty to auto-generate one from the body.'));
+      }
+      break;
+    case 'validate':
+      if (trim($node->teaser) == '') {
+        $node->teaser = node_teaser($node->body);
+      }
+      break;
+    case 'view':
+      $node->readmore = $node->teaser !== $node->body;
+      break;
+  }
+
+  return $output;
+}
+
+?>
