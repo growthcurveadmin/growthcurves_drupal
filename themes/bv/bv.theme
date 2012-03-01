@@ -1,0 +1,269 @@
+<?php
+// $Id: bv.theme,v 1.25.2.2 2005/06/29 19:53:35 dries Exp $
+
+/**
+ * @file
+ * A slim, CSS-driven theme.
+ */
+
+function bv_features() {
+  return array(
+       'logo',
+       'toggle_name',
+       'toggle_slogan',
+       'toggle_primary_links',
+       'toggle_secondary_links');
+}
+
+function bv_page($content) {
+  global $base_url;
+  $language = $GLOBALS['locale'];
+
+  $title = drupal_get_title();
+
+  //$output  = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+  $output  = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n";
+  //$output .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"$language\" xml:lang=\"$language\">\n";
+  $output .= "<html>\n";
+  $output .= "<head>\n";
+  $output .= " <title>". ($title ? strip_tags($title) ." | ". variable_get("site_name", "drupal") : variable_get("site_name", "drupal") ." | ". variable_get("site_slogan", "")) ."</title>\n";
+  // BC.com icon
+  $output .= " <link rel=\"shortcut icon\" href=\"http://www.borstvoeding.com/assets/favicon.ico\" type=\"image/ico\" />\n";
+  // BC.com styles
+  $output .= " <link rel=\"stylesheet\" href=\"http://www.borstvoeding.com/assets/borstvoeding.css\" type=\"text/css\" media=\"all\" />\n";
+  $output .= " <link rel=\"stylesheet\" href=\"http://www.borstvoeding.com/assets/borstvoeding-print.css\" type=\"text/css\" media=\"print\" />\n";
+  // Style
+  $output .= <<<STYLE
+<style type="text/css">
+
+	html,body{margin:0;padding:0}
+
+	table#toplevel{
+		/*background: green;*/
+		border: 0px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 895px;
+	}
+	table#toplevel tr, table#toplevel td{
+		border: 0px;
+		padding: 0px;
+	}
+
+	table#toplevel td {
+		vertical-align: top;
+	}	
+
+	body{padding: 10px !important;}
+	p{margin:0 10px 10px}
+
+	div#header h1{height:80px;line-height:80px;margin:0;
+		padding-left:10px;background: #EEE;color: #79B30B}
+	div#header img { padding: 0;}
+	div#header a { display: inline; padding: 0;}
+
+	tr#header a { display: inline; font-size: 0px;}
+	tr#header td { padding: 0px; border: 0px;}
+	td#logo { width: 238px; }
+	td#logo img { border: 0px;}
+
+	div#container{border: 0px;}
+	table#graphs{border: 0px;}
+
+	/* Navigation */	
+	td#navigation{background:#CC1F1F}
+	div#navigation{background:#CC1F1F}
+	div#navigation h2 {color:#FFFFFF;}
+	div#navigation a{color:#FFFFFF;}
+	div#navigation a:hover{ color: #CC1F1F;}
+	.menu li {width: 90%;}
+	
+	div#extra{background:#FF8539}
+	div#footer {color: #FFF}
+	div#footer p {margin:0;padding:5px 10px}
+	div.ads {width: 100%;}
+	div.ads table {width: 100%; border: 0px;}
+	div.ads td {align: center; vertical-align: center; border: 0px;}
+	
+	div#container{width:893px;margin:0 auto}
+	div#content{float:left;width:670px; padding-left: 10px; padding-right: 10px;}
+	div#content div.links{display: none;}
+	div#navigation{float:right;width:238px}
+	div#extra{clear:both;width:100%}
+</style>
+STYLE;
+
+  // Org Drupal
+  $output .= drupal_get_html_head();
+  $output .= " <link rel=\"stylesheet\" type=\"text/css\" href=\"".$base_url."/themes/bv/common.css\" />\n";
+  $output .= theme_get_styles();
+  $output .= "</head>\n";
+
+  $output .= "<body". theme_onload_attribute() .">\n";
+	$output .= <<<REAL_BODY
+<table id="toplevel" border="0" align="center" celspacing="0">
+	<!-- Header -->
+	<tr id="header">
+		<td id="banner">
+			<img src="http://www.borstvoeding.com/assets/beeld-nieuw/rotate.php" width="700" height="136">
+			<!--<img src="themes/bv/Groeicurve_top_L-V2.jpg" width="700" height="136">-->
+		</td>
+		<td id="logo">
+			<a href="/" title="home"><img src="themes/bv/Groeicurve_top_R.gif" width="238" height="136" border="0" alt="home" /></a>
+		</td>
+	</tr>
+	<!-- Body -->
+	<tr id="body">
+		<!-- Content -->
+		<td id="content">
+REAL_BODY;
+
+//
+// The content
+//
+
+  $output .= "<div id=\"content\" class=\"kolom\">\n";
+
+  if ($title) {
+    $output .= theme("breadcrumb", drupal_get_breadcrumb());
+    $output .= "<h2>$title</h2>";
+  }
+
+  if ($tabs = theme('menu_local_tasks')) {
+    $output .= $tabs;
+  }
+
+  if ($help = menu_get_active_help()) {
+    $output .= "<div id=\"help\">$help</div><hr />";
+  }
+
+  $output .= theme_status_messages();
+
+  $output .= "\n<!-- begin content -->\n";
+  $output .= $content;
+  $output .= "\n<!-- end content -->\n";
+
+  $output .= "</div>\n";
+
+	$output .= <<<REAL_BODY
+		</td>
+		<!-- Navigation -->
+		<td id="navigation">
+REAL_BODY;
+
+	//
+	// The menu
+	//
+  $output .= "<div id=\"navigation\" class=\"kolom\">\n";
+  if ($blocks = theme_blocks("right")) {
+		$output .= $blocks;
+  }
+  $output .= "</div>\n";
+
+	$output .= <<<REAL_BODY
+		</td>
+	</tr>
+	<!-- Footer -->
+	<tr id="footer">
+		<!-- Ads -->
+		<td colspan="2">
+REAL_BODY;
+
+//
+// The footer
+//
+
+  $output .= "<div id=\"extra\">\n";
+  if ($footer = variable_get('site_footer', '')) {
+    $output .= " <div id=\"footer\">$footer</div>\n";
+  }
+  $output .= "</div>\n";
+
+	// The real footer...
+  $output .= "<div id=\"footer\">".bv_ads()."</div>\n";
+  $output .= "</div>\n";
+
+	$output .= <<<REAL_BODY
+		</td>
+	</tr>
+</table>
+REAL_BODY;
+
+  $output .= theme_closure();
+  $output .= "</body>\n";
+  $output .= "</html>\n";
+	return $output;
+}
+
+function bv_ads() {
+	$output .= "<div class=\"ads\">\n";
+	$output .= "<a name=\"ads\" id=\"ads\">\n";
+  $output .= "<table>\n";
+  $output .= "<tr>\n";
+	// Alles over succesvol borstvoeding geven
+	$output .= "<td width=\"25%\"><a target=\"_blank\" href=\"http://www.borstvoedingboek.com/\"><img width=\"202\" height=\"90\" border=\"0\" alt=\"home\" src=\"http://www.borstvoeding.com/beeld/banner-bv20480-handboek-borstvoeding.jpg\"/></a></td>\n";
+	// Handboek borst- en bijvoeding
+	$output .= "<td width=\"25%\"><a target=\"_blank\" href=\"http://www.borstvoeding.com/boeken/bij.html\"><img width=\"202\" height=\"90\" border=\"0\" alt=\"\" src=\"http://www.borstvoeding.com/beeld/banner-vbtb20480-eten-voor-de-kleintjes.jpg\"/></a></td>\n";
+	// Zelluf doen
+	$output .= "<td width=\"25%\"><a target=\"_blank\" href=\"http://bijvoeding.freeforums.org/index.php\"><img width=\"202\" height=\"90\" border=\"0\" alt=\"\" src=\"http://www.borstvoeding.com/beeld/bv-forum-4.jpg\"/></a></td>\n";
+	// Eurolac
+	$output .= "<td width=\"25%\"><a title=\"Bezoek het Eurolacforum\" target=\"_blank\" href=\"http://www.eurolac.net/\"><img border=\"0\" alt=\"Bezoek het Eurolacforum\" src=\"http://www.borstvoeding.com/banners/adverb-eurolac3-text.gif\"/></a></td>\n";
+  $output .= "</tr>\n";
+  $output .= "</table>\n";
+	$output .= "</div>\n";
+	return $output;
+}
+
+function bv_node($node, $main = 0, $page = 0) {
+
+  $output  = "<div class=\"node\">\n";
+
+  if (!$page) {
+    $output .= " <h2 class=\"title\">". ($main ? l($node->title, "node/$node->nid") : check_plain($node->title)) ."</h2>\n";
+  }
+
+  $output .= " <div class=\"content\">\n";
+
+  if ($main && $node->teaser) {
+    $output .= $node->teaser;
+  }
+  else {
+    $output .= $node->body;
+  }
+
+  $output .= " </div>\n";
+
+  $submitted = theme_get_setting("toggle_node_info_$node->type") ? array(t("By %author at %date", array('%author' => format_name($node), '%date' => format_date($node->created, 'small')))) : array();
+
+  $terms = array();
+  if (module_exist('taxonomy')) {
+    $terms = taxonomy_link("taxonomy terms", $node);
+  }
+
+  $links = array_merge($submitted, $terms);
+  if ($node->links) {
+    $links = array_merge($links, $node->links);
+  }
+  if (count($links)) {
+    $output .= " <div class=\"links\">". theme('links', $links) ."</div>\n";
+  }
+
+  $output .= "</div>\n";
+
+  return $output;
+}
+
+function bv_comment($comment, $link = "") {
+
+  $submitted = array(t('By %author at %date', array('%author' => format_name($comment), '%date' => format_date($comment->timestamp. 'small'))));
+  $links = array($link);
+
+  $output  = "<div class=\"comment\">\n";
+  $output .= " <h3 class=\"title\">". l($comment->subject, $_GET['q'], NULL, NULL, "comment-$comment->cid") ."</h3>\n";
+  $output .= " <div class=\"content\">". $comment->comment ."</div>\n";
+  $output .= " <div class=\"links\">". theme('links', array_merge($submitted, $links)) ."</div>\n";
+  $output .= "</div>\n";
+
+  return $output;
+}
+?>
