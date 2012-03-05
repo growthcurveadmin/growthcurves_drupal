@@ -152,3 +152,8 @@ table#children td a {
   padding-left: 4px;
   padding-right: 4px;
 }
+
+/* This is mostly here because we could have two message at a time */
+div.messages.warning {
+  padding-left: 24px;
+}
